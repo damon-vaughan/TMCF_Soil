@@ -5,7 +5,7 @@ source("Soil_functions.R")
 options(readr.show_col_types = FALSE)
 
 # Data should be uploaded into a folder named by date of upload.
-import_date <- "2023-12-07"
+import_date <- "2024-01-04"
 
 # Import to L1 -----------------------------------------------------
 
@@ -20,12 +20,11 @@ col.names.raw <- c("Timestamp", "Sensor", "M1", "M2", "M3", "M4", "M5", "M6",
                    "T1", "T2", "T3", "T4", "T5", "T6", "T7")
 
 # If you get an error arising from missing data at the start of the file, open it and delete those rows manually
-i <- filenames.full[3]
+i <- filenames.full[14]
 for(i in filenames.full){
-  Sensor = str_sub(i, start = -11, end = -6)
   
-  sensorkey.sub = sensor.key %>% 
-    filter(SensorID == Sensor)
+  sensorkey.sub <- sensor.key %>% 
+    filter(SensorID == str_sub(i, start = -11, end = -6))
   
   d <- read_gropoint2(i) %>% 
     distinct()

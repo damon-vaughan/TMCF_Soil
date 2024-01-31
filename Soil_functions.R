@@ -25,7 +25,7 @@ read_gropoint2 <- function(x){
       mutate(across(all_of(3:15), as.numeric))
   ) %>% 
     mutate(TreeID = unique(sensorkey.sub$TreeID),
-           Sensor = unique(sensorkey.sub$SensorNum)) %>%
+           Sensor = unique(sensorkey.sub$Sensor)) %>%
     select(TreeID, Sensor, everything())
 }
 
