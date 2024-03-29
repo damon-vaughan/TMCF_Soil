@@ -5,9 +5,10 @@ source("Soil_functions.R")
 options(readr.show_col_types = FALSE)
 
 # Data should be uploaded into a folder named by date of upload.
-import_date <- "2024-01-04"
+import_date <- "2024-03-06"
 
 # Import to L1 -----------------------------------------------------
+# Appends
 
 filenames.full <- list.files(file.path("Soil_data_raw", import_date), 
                              full.names = T)
@@ -20,7 +21,7 @@ col.names.raw <- c("Timestamp", "Sensor", "M1", "M2", "M3", "M4", "M5", "M6",
                    "T1", "T2", "T3", "T4", "T5", "T6", "T7")
 
 # If you get an error arising from missing data at the start of the file, open it and delete those rows manually
-i <- filenames.full[14]
+# i <- filenames.full[1]
 for(i in filenames.full){
   
   sensorkey.sub <- sensor.key %>% 
@@ -58,20 +59,26 @@ for(i in filenames.full){
       write_csv(new.L1, str_c(out, ".csv"))
       print(str_c("Imported from: ", unique(sensorkey.sub$TreeID), "_", 
                   unique(sensorkey.sub$Sensor)))} 
+    else if(new.data.starts > data.needed.starting){
+      d.append <- read_gropoint2(i) %>% 
+        filter(Timestamp > as.POSIXct(data.needed.starting, tz = "CST"))
+      new.L1 <- bind_rows(L1.data, d.append) %>% 
+        distinct()
+      out <- str_c(file.path("Soil_data_L1", 
+                             str_c(unique(sensorkey.sub$TreeID), "_", 
+                                   unique(sensorkey.sub$Sensor), "_GP_L1")))
+      write_csv(new.L1, str_c(out, ".csv"))
+      print(str_c("Problem: data gap: ", 
+                  unique(sensorkey.sub$TreeID), "_", 
+                  unique(sensorkey.sub$Sensor)))}
     else if(new.data.starts <= data.needed.starting & 
             new.data.ends <= data.needed.starting) {
       print(str_c("No import needed from: ", unique(sensorkey.sub$TreeID), "_", 
                   unique(sensorkey.sub$Sensor)))} 
-    else if(new.data.starts > data.needed.starting){
-      print(str_c("Problem: No import due to data gap: ", 
-                  unique(sensorkey.sub$TreeID), "_", 
-                  unique(sensorkey.sub$Sensor)))
-    }
   }
 }
 
 # L1 to L2 -------------------------------------
-# Not updated for a very long time!!!
 
 filenames.L1 <- list.files("Soil_data_L1", pattern = ".csv", full.names = T)
 tree.vec <- full.tree.vec
@@ -80,7 +87,7 @@ sensor.key <- read_excel(file.path("Soil_data_supporting",
                                    "Sensor_key_Install2.xlsx")) %>% 
   mutate(SensorID = as.character(SensorID))
 
-i <- tree.vec[1]
+# i <- tree.vec[1]
 for(i in tree.vec){
   filenames.sub <- filenames.L1[which(str_detect(filenames.L1, i) == T)]
   
