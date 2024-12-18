@@ -5,7 +5,7 @@ source("Soil_functions.R")
 options(readr.show_col_types = FALSE)
 
 # Data should be uploaded into a folder named by date of upload.
-import_date <- "2024-08-26"
+import_date <- "2024-12-10"
 
 # Import to L1 -----------------------------------------------------
 # Appends
